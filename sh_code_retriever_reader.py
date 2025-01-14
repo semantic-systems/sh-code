@@ -17,3 +17,13 @@ def chunk_text(text, chunk_size=300):
     words = text.split()
     chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
     return chunks
+
+
+def retrieve_chunks(question, chunks, top_n=3):
+    question_embedding = retriever_model.encode([question])
+    chunk_embeddings = retriever_model.encode(chunks)
+    # similarities = cosine_similarity(question_embedding, chunk_embeddings).flatten()
+    similarities = np.dot(question_embedding, chunk_embeddings.T).flatten()
+    top_chunk_indices = np.argsort(similarities)[-top_n:][::-1]
+    top_chunks = [chunks[i] for i in top_chunk_indices]
+    return top_chunks

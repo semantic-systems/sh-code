@@ -64,7 +64,7 @@ def question_parser(question, q_type="kg_text"):
         "kg_kg_comparison": prompt_kg_kg_comparison
     }
     prompt = prompt_mapping.get(q_type, prompt)
-    hq_representation = llms.chatgpt(prompt, 9)
+    hq_representation = llms.chatgpt(prompt, 1)
     return hq_representation
 
 

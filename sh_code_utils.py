@@ -200,3 +200,25 @@ def search_semoa_author(author_dblp_orcid):
         return author_semoa_uri
     else:
         return None
+
+
+def extract_text_from_wikipedia(url):
+    try:
+        decoded_url = urllib.parse.unquote(url)
+        wikipedia_url = decoded_url.replace(" ", "_")
+        encoded_url = quote(wikipedia_url, safe=':/')
+        source = urlopen(encoded_url).read()
+        soup = BeautifulSoup(source, 'lxml')
+        title = soup.title.string.strip()
+        title = title.rstrip('- Wikipedia')
+        text = ''
+        for paragraph in soup.find(id="bodyContent").find_all('p'):
+            text += paragraph.text
+        pattern = r'\[\d+\]'
+        cleaned_wikipedia_text = re.sub(pattern, '', text)
+        cleaned_wikipedia_text = cleaned_wikipedia_text.strip()
+        return cleaned_wikipedia_text
+    except Exception as e:
+        print(f"General Exception: {e}")
+        print(f"Failed to retrieve: {url}")
+        return None

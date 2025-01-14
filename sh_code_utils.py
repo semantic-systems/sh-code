@@ -90,3 +90,41 @@ def identify_title(question):
             return title['title'][0]
     else:
         return ''
+
+
+def entity_linking(entity='', flag=True):
+    sparql_end_point = "https://dblp-april24.skynet.coypu.org/sparql"
+    if flag:
+        if entity == '':
+            return None
+        entity = entity.rstrip("'")
+        entity = entity.lstrip("'")
+        entity = entity.rstrip('"')
+        entity = entity.lstrip('"')
+        if not entity.endswith('.'):
+            entity += '.'
+        query = """PREFIX dblp: <https://dblp.org/rdf/schema#>
+                SELECT *
+                  WHERE {
+                  ?paper dblp:title "%s" .
+                  ?author ^dblp:authoredBy ?paper ;
+                          dblp:primaryCreatorName ?primarycreatorname ;
+                          dblp:orcid ?orcid ;
+                          dblp:wikipedia ?wikipedia .
+                  FILTER (CONTAINS(STR(?wikipedia), "en.wikipedia.org"))
+                }"""
+    else:
+        entity = entity.strip("<>")
+        entity = f"<{entity}>"
+        query = """PREFIX dblp: <https://dblp.org/rdf/schema#>
+                SELECT *
+                  WHERE {
+                  %s dblp:primaryCreatorName ?primarycreatorname ;
+                     dblp:orcid ?orcid ;
+                     dblp:wikipedia ?wikipedia .
+                  FILTER (CONTAINS(STR(?wikipedia), "en.wikipedia.org"))
+                }"""
+
+    sparql_result = run_sparql_query(sparql_end_point, query, entity, True)
+    # print(search_result)
+    return sparql_result

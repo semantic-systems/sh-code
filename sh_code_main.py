@@ -210,3 +210,9 @@ def run_parsing_based_answer_extractor(test_data_path, prediction_file_path):
                                    "global_author_inst_wiki_uri": globals.global_author_inst_wiki_uri
                                    })
         sh_code_utils.write_to_json(answer_predictions, prediction_file_path)
+
+
+if __name__ == "__main__":
+    test_set = "./test_data.json"
+    predictions = "./predictions.json"
+    run_parsing_based_answer_extractor(test_set,predictions)

@@ -77,3 +77,23 @@ def split_expressions(inner_expr):
     left_expr = inner_expr[:split_index].strip()
     right_expr = inner_expr[split_index + 1:].strip()
     return left_expr, right_expr
+
+
+def evaluate_with_tracking(node, current_uri=None):
+    if node.value.startswith("COMP_"):
+        left_value, left_entity = evaluate_subexpression_with_entity(node.left, current_uri)
+        right_value, right_entity = evaluate_subexpression_with_entity(node.right, current_uri)
+
+        left_value = float(left_value) if is_float(left_value) else 0
+        right_value = float(right_value) if is_float(right_value) else 0
+
+        if node.value.__contains__("COMP_>"):
+            return (left_entity if left_value > right_value else right_entity), None
+        elif node.value.__contains__("COMP_<"):
+            return (left_entity if left_value < right_value else right_entity), None
+        elif node.value.__contains__("COMP_="):
+            return (left_entity if left_value == right_value else "Values are not equal"), None
+        else:
+            raise ValueError(f"Unrecognized COMPARE operation: {node.value}")
+    # For other nodes, defer to the existing evaluation logic
+    return evaluate_tree(node, current_uri)

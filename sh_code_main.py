@@ -68,3 +68,19 @@ def question_parser(question, q_type="kg_text"):
     prompt = prompt_mapping.get(q_type, prompt)
     hq_representation = llms.chatgpt(prompt, 9)
     return hq_representation
+
+
+def get_name(result):
+    if 'uri' in result:
+        uri = result['uri']
+        uri = uri.strip('<>')
+        uri = f"<{uri}>"
+        endpoint = "https://semoa.skynet.coypu.org/sparql"
+        sparql = """PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+                        SELECT ?answer WHERE { 
+                        %s foaf:name ?answer .}
+                    """
+        query_result = sh_code_utils.run_sparql_query(endpoint, sparql, uri, True)
+        if query_result and len(query_result) > 0:
+            return query_result[0]["answer"]
+    return None

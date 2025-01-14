@@ -172,3 +172,31 @@ def resolve_author(question, author_dblp_uri, q_type='bridge'):
             if author_uris[1] not in globals.global_visited_author_uri:
                 globals.global_visited_author_uri.append(author_uris[1])
                 return search_author(author_uris[1])
+
+
+def search_semoa_author(author_dblp_orcid):
+    sparql_endpoint = "http://localhost:3030/sopena/sparql"
+    orcid_query = """PREFIX ns2: <https://semopenalex.org/ontology/>
+               PREFIX ns3: <http://purl.org/spar/bido/>
+               PREFIX ns4: <https://dbpedia.org/ontology/>
+               PREFIX ns5: <https://dbpedia.org/property/>
+
+               SELECT * WHERE
+               {
+               GRAPH <https://semopenalex.org/authors/context> {
+                 {
+                   OPTIONAL {?author_uri ns2:orcidId ?orcid . }
+                   OPTIONAL {?author_uri ns3:orcidId ?orcid . }
+                   OPTIONAL { ?author_uri ns4:orcidId ?orcid . }
+                   OPTIONAL { ?author_uri ns5:orcidId ?orcid . }
+                   FILTER (?orcid = "%s")
+                   }
+                   }
+               } 
+           """
+    orcid_query_result = query_sparql_endpoint(sparql_endpoint, orcid_query, author_dblp_orcid)
+    if orcid_query_result:
+        author_semoa_uri = orcid_query_result[0]['author_uri']
+        return author_semoa_uri
+    else:
+        return None

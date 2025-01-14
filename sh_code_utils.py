@@ -138,3 +138,37 @@ def search_author(author_dblp_uri):
                 globals.global_orcid = r['orcid']
                 globals.global_author_wiki_uri = r['wikipedia']
                 return r['primarycreatorname'], {"orcid": r['orcid'], "author_wikipedia": r['wikipedia']}
+
+
+def resolve_author(question, author_dblp_uri, q_type='bridge'):
+    title = identify_title(question)
+    if title == '':
+        return '', {}
+    entity = entity_linking(title)
+    if q_type == 'bridge':
+        if entity:
+            for entity_item in entity:
+                if 'orcid' in entity_item:
+                    if urlparse(entity_item['author']) == urlparse(author_dblp_uri):
+                        globals.global_orcid = entity_item['orcid']
+                        globals.global_author_wiki_uri = entity_item['wikipedia']
+                        return entity_item['primarycreatorname'], {"orcid": entity_item['orcid'], "author_wikipedia": entity_item['wikipedia']}
+
+        return search_author(author_dblp_uri)
+    else:
+        author_uris = [value.strip('<>') for item in author_dblp_uri for value in item.values()]
+        if entity:
+            for entity_item in entity:
+                if 'orcid' in entity_item:
+                    if entity_item['author'] in author_uris:
+                        if entity_item['author'] not in globals.global_visited_author_uri:
+                            globals.global_visited_author_uri.append(entity_item['author'])
+                            return entity_item['primarycreatorname'], {"orcid": entity_item['orcid'],
+                                                                       "author_wikipedia": entity_item['wikipedia']}
+        if len(author_uris) > 1:
+            if author_uris[0] not in globals.global_visited_author_uri:
+                globals.global_visited_author_uri.append(author_uris[0])
+                return search_author(author_uris[0])
+            if author_uris[1] not in globals.global_visited_author_uri:
+                globals.global_visited_author_uri.append(author_uris[1])
+                return search_author(author_uris[1])

@@ -84,3 +84,19 @@ def get_name(result):
         if query_result and len(query_result) > 0:
             return query_result[0]["answer"]
     return None
+
+
+def get_inst_uri(param):
+    sparql_endpoint = "https://semoa.skynet.coypu.org/sparql"
+    sparql = """
+               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+               SELECT ?inst_wikipedia_url
+               WHERE {
+                   %s rdfs:seeAlso ?inst_wikipedia_url .
+                  FILTER (CONTAINS(STR(?inst_wikipedia_url), "en.wikipedia.org"))
+                }
+               """
+    param = param.strip("<>")
+    query_result = sh_code_utils.run_sparql_query(sparql_endpoint, sparql, f"<{param}>", True)
+    if query_result and len(query_result) > 0:
+        return query_result[0]["inst_wikipedia_url"]

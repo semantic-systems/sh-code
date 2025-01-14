@@ -100,3 +100,52 @@ def get_inst_uri(param):
     query_result = sh_code_utils.run_sparql_query(sparql_endpoint, sparql, f"<{param}>", True)
     if query_result and len(query_result) > 0:
         return query_result[0]["inst_wikipedia_url"]
+
+
+def KGQA1(question, author_dblp_uri):
+    if isinstance(author_dblp_uri, list):
+        return sh_code_utils.resolve_author(question, author_dblp_uri, "comparison")
+    return sh_code_utils.resolve_author(question, author_dblp_uri)
+
+
+def KGQA2(question, uris):
+    sparql_endpoint = "https://semoa.skynet.coypu.org/sparql"
+    prefix = """
+    PREFIX soa: <https://semopenalex.org/ontology/>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX ns3: <http://purl.org/spar/bido/>
+    PREFIX org: <http://www.w3.org/ns/org#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    """
+
+    def execute_query(uri, question):
+        # print(uris)
+        sparql = build_sparql(question, uri)
+        final_sparql = prefix + sparql
+        # print(f"Executing SPARQL Query:\n{final_sparql}")
+        try:
+            result = sh_code_utils.run_sparql_query(sparql_endpoint, final_sparql)
+            if result and len(result) > 0:
+                # print(f"SPARQL Result: {result}")
+                answer = result[0]["answer"]
+                uri_result = result[0].get("uri", uri)
+                return answer, {"uri": uri_result}
+            else:
+                return None, uris  # Return None if no result found
+        except Exception as e:
+            print(f"SPARQL Query Execution Error: {e}")
+            return None, uris
+
+    if uris:
+        if 'orcid' in uris:
+            semoa_author_uri = sh_code_utils.search_semoa_author(uris["orcid"])
+            if semoa_author_uri:
+                return execute_query(semoa_author_uri, question)
+        if 'uri' in uris:
+            if uris['uri'].__contains__('institution'):
+                globals.global_author_inst_wiki_uri = get_inst_uri(uris['uri'])
+            return execute_query(uris['uri'], question)
+
+        print("No valid ORCID or URI.")
+    return None, uris

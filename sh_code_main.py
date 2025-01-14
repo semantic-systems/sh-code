@@ -1,7 +1,5 @@
 import importlib
 import globals
-from collections import defaultdict
-import json
 import sh_code_parser
 import sh_code_retriever_reader
 import sh_code_utils
@@ -156,16 +154,59 @@ def textQA(question, uris):
     if "author_wikipedia" in uris:
         text = sh_code_utils.extract_text_from_wikipedia(uris["author_wikipedia"])
     if 'uri' in uris:
-        print(uris)
+        # print(uris)
         if uris['uri'].__contains__('institution'):
             inst_uri = uris['uri']
             globals.global_author_inst_wiki_uri = inst_uri
             inst_uri = inst_uri.strip("<>")
             inst_wiki = get_inst_uri(f"<{inst_uri}>")
-            print(inst_wiki)
+            # print(inst_wiki)
             text = sh_code_utils.extract_text_from_wikipedia(inst_wiki)
     if text:
         text = text.strip()
         answer, top_n_answers = sh_code_retriever_reader.run_retriever_reader(question, text, chunk_size=200, top_n=3)
         return answer, top_n_answers
     return None, uris
+
+
+def run_parsing_based_answer_extractor(test_data_path, prediction_file_path):
+    test_data = sh_code_utils.load_json_data(test_data_path)
+    answer_predictions = sh_code_utils.load_json_data(prediction_file_path)
+    for item in test_data:
+        question = item["question"]
+        author_dblp_uri = item["author_dblp_uri"]
+        source_type = " ".join(item['source_types'])
+        if source_type == 'KG KG':
+            if item["type"] == 'bridge':
+                hq_representation = question_parser(question, "kg_kg_bridge")
+            else:
+                hq_representation = question_parser(question, "kg_kg_comparison")
+        else:
+            hq_representation = question_parser(question)
+
+        try:
+            globals.global_visited_author_uri = []
+            tree = sh_code_parser.parse_expression(hq_representation['hq_representation'])
+            globals.global_author_uri = author_dblp_uri
+            answer, context = sh_code_parser.evaluate_tree(tree, author_dblp_uri)  # in case of textQA uri will be set top-n chunks
+            if item["type"] == 'comparison':
+                answer = get_name(answer)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            answer = None
+            context = None
+        answer_predictions.append({"author_dblp_uri": author_dblp_uri,
+                                   "id": item["id"],
+                                   "question": question,
+                                   "answer": answer,
+                                   "hq_representation": hq_representation['hq_representation'],
+                                   "parse_tree": str(tree),
+                                   "context": context,
+                                   "type": item["type"],
+                                   "source_type": source_type,
+                                   "global_author_uri": globals.global_author_uri,
+                                   "global_visited_author_uri": globals.global_visited_author_uri,
+                                   "global_author_wiki_uri": globals.global_author_wiki_uri,
+                                   "global_author_inst_wiki_uri": globals.global_author_inst_wiki_uri
+                                   })
+        sh_code_utils.write_to_json(answer_predictions, prediction_file_path)

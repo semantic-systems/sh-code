@@ -84,7 +84,7 @@ def identify_title(question):
 
                     phrase: {question}
                 """
-    title = llms.chatgpt(prompt, 6)
+    title = llms.chatgpt(prompt, 2)
     if 'title' in title:
         if title['title']:
             return title['title'][0]

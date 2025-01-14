@@ -149,3 +149,23 @@ def KGQA2(question, uris):
 
         print("No valid ORCID or URI.")
     return None, uris
+
+
+def textQA(question, uris):
+    text = ''
+    if "author_wikipedia" in uris:
+        text = sh_code_utils.extract_text_from_wikipedia(uris["author_wikipedia"])
+    if 'uri' in uris:
+        print(uris)
+        if uris['uri'].__contains__('institution'):
+            inst_uri = uris['uri']
+            globals.global_author_inst_wiki_uri = inst_uri
+            inst_uri = inst_uri.strip("<>")
+            inst_wiki = get_inst_uri(f"<{inst_uri}>")
+            print(inst_wiki)
+            text = sh_code_utils.extract_text_from_wikipedia(inst_wiki)
+    if text:
+        text = text.strip()
+        answer, top_n_answers = sh_code_retriever_reader.run_retriever_reader(question, text, chunk_size=200, top_n=3)
+        return answer, top_n_answers
+    return None, uris

@@ -128,3 +128,13 @@ def entity_linking(entity='', flag=True):
     sparql_result = run_sparql_query(sparql_end_point, query, entity, True)
     # print(search_result)
     return sparql_result
+
+
+def search_author(author_dblp_uri):
+    result = entity_linking(f"<{author_dblp_uri}>", False)
+    if result:
+        for r in result:
+            if 'orcid' in r:
+                globals.global_orcid = r['orcid']
+                globals.global_author_wiki_uri = r['wikipedia']
+                return r['primarycreatorname'], {"orcid": r['orcid'], "author_wikipedia": r['wikipedia']}

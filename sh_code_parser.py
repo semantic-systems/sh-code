@@ -97,3 +97,29 @@ def evaluate_with_tracking(node, current_uri=None):
             raise ValueError(f"Unrecognized COMPARE operation: {node.value}")
     # For other nodes, defer to the existing evaluation logic
     return evaluate_tree(node, current_uri)
+
+
+def evaluate_subexpression_with_entity(node, current_uri=None):
+    if node.value == "JOIN":
+        right_answer, right_uri = evaluate_subexpression_with_entity(node.right, current_uri)
+        if right_answer is None:
+            right_answer = ''
+
+        left_question = re.sub(r"Ans#\d+", right_answer, node.left.left.value)
+        node.left.left.value = left_question  # Update left question with answer
+        left_answer, left_uri = evaluate_subexpression_with_entity(node.left, right_uri)
+        return left_answer, left_uri  # left_answer should hold the numeric value, left_uri the entity
+
+    elif node.value in {"TextQA", "KGQA1", "KGQA2"}:
+        query = node.left.value
+        if node.value == "TextQA":
+            answer, top_n_answer = sh_code_main.textQA(query, current_uri)
+            return answer, top_n_answer
+        elif node.value == "KGQA1":
+            answer, uri = sh_code_main.KGQA1(query, globals.global_author_uri)
+            return answer, uri
+        elif node.value == "KGQA2":
+            answer, uri = sh_code_main.KGQA2(query, current_uri)
+            return answer, uri
+    # If it's a basic value node, just return it
+    return node.value, None

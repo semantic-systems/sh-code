@@ -51,4 +51,3 @@ packaging~=24.0
 kiwisolver~=1.4.5
 zipp~=3.18.1
 langchain~=0.2.5
-gradio~=4.9.1

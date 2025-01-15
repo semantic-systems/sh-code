@@ -49,5 +49,5 @@ jsonpointer~=3.0.0
 cycler~=0.12.1
 packaging~=24.0
 kiwisolver~=1.4.5
-zipp~=3.18.1
+zipp>=3.19.1
 langchain~=0.2.5

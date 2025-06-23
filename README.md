@@ -12,8 +12,6 @@ A repository for the [scholarly hybrid complex question decomposition and execut
   booktitle={2025 19th International Conference on Semantic Computing (ICSC)}, 
   title={SH-CoDE: Scholarly Hybrid Complex Question Decomposition and Execution}, 
   year={2025},
-  volume={},
-  number={},
   pages={1-8},
   keywords={Semantic search; Query processing;Computational modeling;Knowledge graphs;Question answering (information retrieval);Iterative methods;Question Answering;Question Decomposition;Scholarly Hybrid Question Answering;Scholarly Hybrid Question Representation},
   doi={10.1109/ICSC64641.2025.00024}}

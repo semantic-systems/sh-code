@@ -8,7 +8,7 @@ wikipedia-api
 plotly~=5.22.0
 scikit-learn~=1.5.0
 soupsieve~=2.5
-h11~=0.14.0
+h11~>0.16.0
 pillow~=10.3.0
 pip~=24.1
 wheel~=0.42.0
@@ -38,7 +38,7 @@ rdflib~=7.0.0
 pyparsing~=3.1.2
 isodate~=0.6.1
 six~=1.16.0
-urllib3~=2.2.1
+urllib3~>2.5.0
 chardet~=5.2.0
 contourpy~=1.2.1
 fonttools~=4.50.0

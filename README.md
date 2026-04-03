@@ -1,5 +1,5 @@
 # SH-CoDE: Scholarly Hybrid Question Decomposition and Execution
-A repository for the [scholarly hybrid complex question decomposition and execution](https://ieeexplore.ieee.org/document/11036317) paper presented at [ICSC 2025](https://semanticcomputing.wixsite.com/icsc2025).
+A repository for the [scholarly hybrid complex question decomposition and execution](https://www.inf.uni-hamburg.de/en/inst/ab/sems/resources/taffa-et-al-icsc-2025-shcode.pdf) paper presented at [ICSC 2025](https://semanticcomputing.wixsite.com/icsc2025). Also found at [IEEE Xplorer](https://ieeexplore.ieee.org/document/11036317).
 
 
 ![sh_code_model](https://github.com/user-attachments/assets/28f6e667-4cb1-47ca-93f3-612428c4a40a)

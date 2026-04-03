@@ -1,4 +1,4 @@
-# Scholarly Hybrid Question Decomposition and Execution (sh-code)
+# SH-CoDE: Scholarly Hybrid Question Decomposition and Execution
 A repository for the [scholarly hybrid complex question decomposition and execution](https://ieeexplore.ieee.org/document/11036317) paper presented at [ICSC 2025](https://semanticcomputing.wixsite.com/icsc2025).
 
 
